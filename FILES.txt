@@ -1,0 +1,15 @@
+*** THIS KEEPS TRACK OF FILES RESPONSIBILITIES AND ROLES ***
+
+
+LS8-cheatsheet.md =>
+
+LS8-spec.md => registers and reserved locations, PC, MAR, MDR, IR, FL (flags), ***** go here to understand each
+moving piece *****
+
+cpu.py => where the action actually happens... interacts with different files but this is the main
+
+examples directory => gives building blocks for basic functionality and additional documentation regarding 
+different operations
+
+
+

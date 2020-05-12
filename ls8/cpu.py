@@ -12,7 +12,9 @@ class CPU:
         self.reg = [0] * 8
         self.sp = 0
         self.pc = 0
-        self.FL = 0
+        self.MAR = None
+        self.MDR = None
+        # self.FL = 0
 
     def load(self):
         """Load a program into memory."""
@@ -45,7 +47,15 @@ class CPU:
             raise Exception("Unsupported ALU operation")
 
     def ram_read(self, index):
-        print(self.ram[index])
+        return self.ram[index]
+
+    def ram_write(self, value, address):
+        # 1) receives the value and address to store that value
+        # 2) set MDR to the value we're storing
+        # 3) set MAR to the addres where value will be stored
+        # 4) increment PC counter ***actually can do that later***
+        # actaully I think there's a much simpler way to do it...
+        self.ram[address] = value
 
     def trace(self):
         """
@@ -72,7 +82,7 @@ class CPU:
         running = True
         while running == True:
             command = self.ram[self.pc]
-            # LDI
+            # LDI - load and store in register
             if command == 0b10000010:
                 self.reg[self.pc + 1] = self.ram[self.pc + 2]
                 self.pc += 3
