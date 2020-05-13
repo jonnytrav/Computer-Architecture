@@ -16,26 +16,44 @@ class CPU:
         self.MDR = None
         # self.FL = 0
 
-    def load(self):
+    def load(self, load_file):
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010,  # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111,  # PRN R0
+        #     0b00000000,
+        #     0b00000001,  # HLT
+        # ]
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
+
+        # sys.argv is a list of all args
+        load_file = load_file
+        print("load_file => ", load_file)
+
+        with open(load_file) as f:
+            for line in f:
+                # add to memory
+                i = line.split("#")
+                num = i[0].strip()
+                if num == "":
+                    continue
+
+                self.ram[address] = int(num, 2)
+                print("current address => ", address)
+                print("value in the RAM => ", self.ram[address])
+
+                address += 1
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -50,11 +68,6 @@ class CPU:
         return self.ram[index]
 
     def ram_write(self, value, address):
-        # 1) receives the value and address to store that value
-        # 2) set MDR to the value we're storing
-        # 3) set MAR to the addres where value will be stored
-        # 4) increment PC counter ***actually can do that later***
-        # actaully I think there's a much simpler way to do it...
         self.ram[address] = value
 
     def trace(self):
@@ -84,15 +97,25 @@ class CPU:
             command = self.ram[self.pc]
             # LDI - load and store in register
             if command == 0b10000010:
-                self.reg[self.pc + 1] = self.ram[self.pc + 2]
+                self.reg[self.ram[self.pc + 1]] = self.ram[self.pc + 2]
                 self.pc += 3
             # PRINT
             elif command == 0b01000111:
-                print(self.ram[self.pc + 1])
+                print(self.reg[self.ram[self.pc + 1]])
                 self.pc += 2
+            # MULTIPLY
+            elif command == 0b10100010:
+                reg1 = self.ram[self.pc + 1]
+                reg2 = self.ram[self.pc + 2]
+                answer = self.reg[reg1] * self.reg[reg2]
+                print("PRODUCT => ", answer)
+                self.reg[0] = answer
+                self.reg[1] = 0
+                self.pc += 3
             # HALT
             elif command == 0b00000001:
                 running = False
+
             # IF NOT RECOGNIZED
             else:
                 sys.exit(1)
