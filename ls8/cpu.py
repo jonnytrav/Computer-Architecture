@@ -10,7 +10,7 @@ class CPU:
         """Construct a new CPU."""
         self.ram = [0] * 256
         self.reg = [0] * 8
-        self.sp = 0
+        self.sp = 7
         self.pc = 0
         self.MAR = None
         self.MDR = None
@@ -115,6 +115,27 @@ class CPU:
             # HALT
             elif command == 0b00000001:
                 running = False
+            # PUSH - takes in register as operand
+            elif command == 0b01000101:
+                reg_address = self.ram[self.pc + 1]
+                reg_value = self.reg[reg_address]
+                # decrement stack pointer first
+                # self.sp will always be 7 => value changes, address doesn't
+                self.reg[self.sp] -= 1
+                # insert value into RAM at SP index
+                self.ram[self.reg[self.sp]] = reg_value
+                self.pc += 2
+                # print("PUSH operation completed =>",
+                #       self.ram[self.reg[self.sp]])
+            # POP
+            elif command == 0b01000110:
+                sp_value = self.ram[self.reg[self.sp]]
+                reg_index = self.ram[self.pc + 1]
+
+                self.reg[reg_index] = sp_value
+
+                self.reg[self.sp] += 1
+                self.pc += 2
 
             # IF NOT RECOGNIZED
             else:
